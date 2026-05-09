@@ -2,17 +2,18 @@
 #include "permisiuni.c"
 #include "initializare.c"
 #include "ai.c"
+#include "notification.c"
 #include "adaugare.c"
 #include "listare.c"
 #include "sterge_and_update.c"
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv){
     char *role = NULL;
-    char *user = NULL; 
+    char *user = NULL;
     char *cmd = NULL;
     char *d = NULL;
 
-    int id = -1; 
+    int id = -1;
     int val = -1;
     int filter_start = -1;
 
@@ -46,16 +47,20 @@ int main(int argc, char **argv) {
             d = argv[++i];
             val = atoi(argv[++i]);
         }
-        if(strcmp(argv[i], "--filter") == 0){
+        if (strcmp(argv[i], "--filter") == 0){
             cmd = "filter";
             d = argv[++i];
-            filter_start = i+1;
+            filter_start = i + 1;
             break;
+        }
+        if (strcmp(argv[i], "--remove_district") == 0){
+            cmd = "rm_district";
+            d = argv[++i];
         }
     }
 
     if (role == NULL || user == NULL || cmd == NULL){
-        printf("Bad args\n");
+        printf("nu ai folosit ceva bine, incearca inca odata\n");
         return 1;
     }
 
@@ -74,9 +79,13 @@ int main(int argc, char **argv) {
     if (strcmp(cmd, "up") == 0){
         return update(role, user, d, val);
     }
-    if (strcmp(cmd, "filter") == 0) {
+    if (strcmp(cmd, "filter") == 0){
         return filter(role, d, argc, argv, filter_start);
     }
+    if (strcmp(cmd, "rm_district") == 0){
+        return remove_district(role, d);
+    }
 
-    return 0;
+    printf("comanda necunoscuta\n");
+    return 1;
 }

@@ -1,3 +1,7 @@
+#include "structura.c"
+#include "permisiuni.c"
+#include "ai.c"
+
 int list(const char *role, const char *user, const char *d){
     char f[PATH];
     snprintf(f, PATH, "%s/reports.dat", d);
@@ -35,10 +39,12 @@ int list(const char *role, const char *user, const char *d){
     log_action(d, role, user, "list");
     create_symlink(d);
 
+    /*afiseaza toate rapoartele din district */
     return 0;
 }
 
 int view(const char *role, const char *d, int id){
+    /*cauta un raport dupa id si afiseaza toate detaliile lui*/
     char f[PATH];
     snprintf(f, PATH, "%s/reports.dat", d);
 

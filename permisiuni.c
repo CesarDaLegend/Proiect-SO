@@ -1,3 +1,5 @@
+#include "structura.c"
+
 void permisiunea(mode_t m, char *p){
     //PENTRU USER
     p[0] = (m & S_IRUSR) ? 'r' : '-';
@@ -13,15 +15,15 @@ void permisiunea(mode_t m, char *p){
     p[6] = (m & S_IROTH) ? 'r' : '-';
     p[7] = (m & S_IWOTH) ? 'w' : '-';
     p[8] = (m & S_IXOTH) ? 'x' : '-';
-    
-    //TERMINATORUL
+
+    //TERMINATOR
     p[9] = '\0';
 }
 
 int verifica_permisiunea(const char *cale, const char *rol, const char *operatie){
     struct stat st;
     if (stat(cale, &st) == -1){
-        return 1;
+        return 0;
     }
 
     if (strcmp(rol, "manager") == 0){

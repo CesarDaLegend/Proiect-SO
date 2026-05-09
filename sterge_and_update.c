@@ -1,11 +1,15 @@
-#include <stdlib.h>
+#include "structura.c"
+#include "permisiuni.c"
+#include "ai.c"
 
 int delete_report(const char *role, const char *user, const char *d, int id){
+    /*sterge un raport dupa id */
     if (strcmp(role, "manager") != 0){
         printf("doar managerul\n");
         return 1;
     }
-
+    /*DOAR MANAGERUL POATE SA STEARGA RAPORTUL DORIT!!!*/
+    
     char f[PATH];
     snprintf(f, PATH, "%s/reports.dat", d);
 
@@ -68,7 +72,71 @@ int delete_report(const char *role, const char *user, const char *d, int id){
     return 0;
 }
 
+
+// sterg tot districtul: directorul cu tot ce e in el si symlink-ul
+// doar managerul poate face asta
+// fac fork + execvp ca sa apelez rm -rf
+int remove_district(const char *role, const char *d){
+    // doar managerul sterge districte
+    if (strcmp(role, "manager") != 0){
+        printf("doar managerul poate sterge un district\n");
+        return 1;
+    }
+
+    // verific ca districtul chiar exista inainte sa fac orice
+    struct stat st;
+    if (stat(d, &st) == -1){
+        printf("districtul '%s' nu exista\n", d);
+        return 1;
+    }
+
+    printf("sterg districtul '%s'...\n", d);
+
+    // creez un proces copil care va rula "rm -rf <district>"
+    pid_t pid = fork();
+
+    if (pid == -1){
+        perror("fork a esuat");
+        return 1;
+    }
+
+    if (pid == 0){
+        // sunt in procesul copil acum
+        // construiesc argumentele pentru rm si le trimit
+        char *args[] = {"rm", "-rf", (char *)d, NULL};
+        execvp("rm", args);
+
+        // daca ajung aici inseamna ca execvp a esuat
+        perror("execvp a esuat");
+        exit(1);
+    }
+
+    // parintele asteapta sa termine copilul
+    int status;
+    waitpid(pid, &status, 0);
+
+    if (WIFEXITED(status) && WEXITSTATUS(status) == 0){
+        printf("directorul '%s' a fost sters\n", d);
+    } 
+    else{
+        printf("ceva nu merge la stergerea lui '%s'\n", d);
+        return 1;
+    }
+
+    // sterg si symlink-ul active_reports-<district>
+    char link[PATH];
+    snprintf(link, PATH, "active_reports-%s", d);
+
+    // incerc sa-l sterg, daca nu exista nu e o problema
+    if (unlink(link) == 0){
+        printf("am sters si symlink-ul '%s'\n", link);
+    }
+
+    return 0;
+}
+
 int update(const char *role, const char *user, const char *d, int val){
+    /* schimba pragul de severitate din "district.cfg"*/
     char f[PATH];
     snprintf(f, PATH, "%s/district.cfg", d);
 
@@ -76,6 +144,7 @@ int update(const char *role, const char *user, const char *d, int val){
         printf("doar managerul\n");
         return 1;
     }
+    /*DOAR MANAGERUL POATE FACE*/
 
     if (!verifica_permisiunea(f, role, "read")){
         printf("No read permission\n");

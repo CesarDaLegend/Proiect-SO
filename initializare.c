@@ -1,3 +1,7 @@
+#include "structura.c"
+#include "permisiuni.c"
+
+/*incerc sa creeez un document districtului si file-uri daca nu exista deja facute*/
 void init_district(const char *d){
     struct stat st;
     if (stat(d, &st) == -1){
@@ -24,6 +28,7 @@ void init_district(const char *d){
     chmod(f, 0644);
 }
 
+/*citeste rapoartelle si creez un alt id */
 int next_id(const char *file){
     int fd = open(file, O_RDONLY);
     if (fd == -1){
@@ -31,11 +36,13 @@ int next_id(const char *file){
     }
 
     Raport r;
-    int id = 0;
+    int max_id = 0;
     while (read(fd, &r, sizeof(r)) == sizeof(r)){
-        id = r.id;
+        if (r.id > max_id) {
+            max_id = r.id;
+        }
     }
 
     close(fd);
-    return id + 1;
+    return max_id + 1;
 }

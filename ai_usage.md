@@ -1,46 +1,60 @@
-# Cum am folosit AI-ul - Faza 1
+# Cum am folosit AI-ul - Fazele 1 si 2
 
 ## Ce AI am folosit
-Am folosit Grok, a lui Elon Musk varianta gratis. Face des greseli, daca nu ma uit in cod
-ci doar ii dau are foarte mullte greseli pe care trebuie analizate si intelese
-
-## Functia parse_condition
-
-### Ce i-am zis
-"Imparte un string de genu severity:>=:2 in trei parti"
-
-### Ce mi-a dat
-O functie care gaseste `:` si taie stringul in bucati. Partea din stanga e field-ul, cea din mijloc e operatorul, cea din dreapta e valoarea.
-
-### Am schimbat ceva?
-Am pus strncpy in loc de strcpy, sa fiu sigur ca nu ies din buffer.
-
-
-## ------- 
-## Functia match_condition
-
-### Ce i-am zis
-"Verifica daca un raport se potriveste cu o conditie de genu severity:>=:2. La numere compari normal, la stringuri doar egal sau diferit."
-
-### Ce mi-a dat
-Un if mare care verifica fiecare camp. La severity si timestamp foloseste atoi/atol si compara numere. La categorie si inspector foloseste strcmp.
-
-### Am schimbat ceva?
-Nu, a mers din prima.
-
-### Ce am retinut
-strcmp da 0 cand doua stringuri sunt la fel. time_t se compara ca un numar normal.
+Am folosit GROK, a lui Elon Musk. L-am folosit strict pentru ce scrie in cerinta:
+functiile `parse_condition` si `match_condition`. In rest am scris eu codul.
 
 ---
 
-## Ce m-a mai ajutat AI-ul
-I-am dat tot codul si l-am intrebat daca vede greseli. A gasit:
-- Un buffer prea mic (p[7] in loc de p[10])
-- Parametrul user lipsa intr-o functie
-- Niste log-uri scrise gresit
+## FAZA 1
 
-Am rezolvat tot si acum merge.
+### parse_condition
 
+**Ce i-am zis:**
+"am un string de forma severity:>=:2 si vreau sa-l impart in trei parti: field, operator si value. fa o functie in C care primeste stringul si intoarce cele trei parti separate"
 
-## Parerea mea
-AI-ul e bun pentru cod repetitiv si sa-ti gaseasca greseli. Dar tot eu a trebuit sa stiu ce vreau de la program. Nu poti doar sa-i dai copy-paste si sa mearga.
+**Ce mi-a dat:**
+O functie care cauta `:` cu `strchr` si taie stringul in bucati.
+Prima parte devine field-ul, a doua operatorul, a treia valoarea.
+
+**Ce am schimbat:**
+Initial folosea `strcpy` peste tot, am schimbat cu `strncpy` ca sa nu ies din buffer daca primesc un string mai lung decat ma astept. Am mai schimbat si numele parametrilor ca sa se potriveasca cu restul codului meu.
+
+---
+
+### match_condition
+
+**Ce i-am zis:**
+"am o structura Raport cu campurile: severitate (int), categorie (char[]), inspector (char[]), timp (time_t). fa o functie care primeste un pointer la raport, un field, un operator si o valoare si returneaza 1 daca raportul satisface conditia"
+
+**Ce mi-a dat:**
+Un if mare cu toate cazurile. La `severitate` si `timp` converteste valoarea cu `atoi`/`atol` si compara ca numere. La `categorie` si `inspector` foloseste `strcmp`.
+
+**Ce am invatat:**
+- `strcmp` returneaza 0 cand stringurile sunt egale, nu stiam exact ce valoare intoarce
+- pentru `time_t` trebuie `atol` nu `atoi` pentru ca pe sisteme de 64 biti e un numar mare
+
+## Corectarea greselilor cu ajutorul AI-ului
+
+Dupa ce am scris restul codului singur, am folosit AI-ul sa-mi gaseasca greseli.
+I-am dat bucati din cod si l-am intrebat "vezi ceva gresit aici?". A gasit cateva:
+
+- in functia `permisiunea()` aveam `char p[7]` in loc de `char p[10]`, saream peste ultimele caractere si terminatorul
+- in `log_action` uitasem sa verific daca `open` a returnat -1 inainte sa scriu
+- la `filter` nu beam newline-ul dupa scanf inainte de fgets, asa ca descrierea se citea gresit
+
+Toate le-am inteles si corectat eu, nu am luat codul fix de la el.
+
+---
+
+## FAZA 2
+
+In faza 2 nu am folosit AI pentru cod, tot ce am adaugat (`monitor_reports.c`, `notificare.c`, `sterge_district.c`) l-am scris eu dupa ce am citit manualele pentru `sigaction`, `fork`, `execvp` si `kill`.
+
+Am folosit AI doar sa intreb "ce face `WIFEXITED`?" si "de ce trebuie `volatile` la variabila din signal handler?" - adica intrebari punctuale sa inteleg niste concepte, nu sa-mi genereze cod.
+
+---
+
+## Ce cred despre AI la programare
+
+E util sa gasesti greseli si sa intelegi rapid un concept nou.

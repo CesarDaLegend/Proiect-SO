@@ -6,6 +6,8 @@
 #include <sys/stat.h>
 #include <time.h>
 #include <dirent.h>
+#include <signal.h>
+#include <sys/wait.h>
 
 #define MAX 100
 #define PATH 200
