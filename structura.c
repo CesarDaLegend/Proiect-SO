@@ -8,6 +8,8 @@
 #include <dirent.h>
 #include <signal.h>
 #include <sys/wait.h>
+#include <errno.h>
+#include <signal.h>
 
 #define MAX 100
 #define PATH 200

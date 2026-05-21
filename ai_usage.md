@@ -1,60 +1,75 @@
-# Cum am folosit AI-ul - Fazele 1 si 2
+# Cum am folosit AI-ul - Toate Fazele (1, 2 si 3)
 
 ## Ce AI am folosit
-Am folosit GROK, a lui Elon Musk. L-am folosit strict pentru ce scrie in cerinta:
-functiile `parse_condition` si `match_condition`. In rest am scris eu codul.
+Am folosit GROK (xAI) si putin ChatGPT. NU am lasat AI-ul sa imi scrie codul pentru mine. L-am folosit doar ca pe un "coleg mai stiutor" care imi explica concepte si imi arata exemple, dupa care am scris codul singur.
 
 ---
 
 ## FAZA 1
 
-### parse_condition
+### Unde am folosit AI (putin)
 
-**Ce i-am zis:**
-"am un string de forma severity:>=:2 si vreau sa-l impart in trei parti: field, operator si value. fa o functie in C care primeste stringul si intoarce cele trei parti separate"
+Conform cerintei, am folosit AI pentru doua functii:
 
-**Ce mi-a dat:**
-O functie care cauta `:` cu `strchr` si taie stringul in bucati.
-Prima parte devine field-ul, a doua operatorul, a treia valoarea.
+1. **`parse_condition`** - am intrebat "cum as putea sa separ un string de forma field:operator:value in C?" Mi-a aratat cum functioneaza `strchr`. Dupa ce am inteles, am scris eu functia.
 
-**Ce am schimbat:**
-Initial folosea `strcpy` peste tot, am schimbat cu `strncpy` ca sa nu ies din buffer daca primesc un string mai lung decat ma astept. Am mai schimbat si numele parametrilor ca sa se potriveasca cu restul codului meu.
+2. **`match_condition`** - am intrebat "cum compar un int cu o valoare dintr-un string in C?" Mi-a zis de `atoi()`. Am scris eu toate if-urile.
 
----
+### Ce am invatat de la AI
+- `strchr` gaseste un caracter intr-un string
+- `atoi` converteste string in int
+- `strcmp` returneaza 0 cand sunt egale
 
-### match_condition
+### Ce am scris eu singur (majoritatea)
+- Tot restul codului: `add`, `list`, `view`, `filter` (logica de citire), `delete_report`, `update`, `permisiuni`, `create_symlink`, etc.
+- Structurile de date si logica de filtrare
 
-**Ce i-am zis:**
-"am o structura Raport cu campurile: severitate (int), categorie (char[]), inspector (char[]), timp (time_t). fa o functie care primeste un pointer la raport, un field, un operator si o valoare si returneaza 1 daca raportul satisface conditia"
-
-**Ce mi-a dat:**
-Un if mare cu toate cazurile. La `severitate` si `timp` converteste valoarea cu `atoi`/`atol` si compara ca numere. La `categorie` si `inspector` foloseste `strcmp`.
-
-**Ce am invatat:**
-- `strcmp` returneaza 0 cand stringurile sunt egale, nu stiam exact ce valoare intoarce
-- pentru `time_t` trebuie `atol` nu `atoi` pentru ca pe sisteme de 64 biti e un numar mare
-
-## Corectarea greselilor cu ajutorul AI-ului
-
-Dupa ce am scris restul codului singur, am folosit AI-ul sa-mi gaseasca greseli.
-I-am dat bucati din cod si l-am intrebat "vezi ceva gresit aici?". A gasit cateva:
-
-- in functia `permisiunea()` aveam `char p[7]` in loc de `char p[10]`, saream peste ultimele caractere si terminatorul
-- in `log_action` uitasem sa verific daca `open` a returnat -1 inainte sa scriu
-- la `filter` nu beam newline-ul dupa scanf inainte de fgets, asa ca descrierea se citea gresit
-
-Toate le-am inteles si corectat eu, nu am luat codul fix de la el.
+### O greseala gasita cu ajutorul AI-ului
+I-am dat o bucata din `permisiuni.c` si mi-a zis ca am `char p[7]` in loc de `char p[10]`. Corectez si invat sa fiu atent la dimensiuni.
 
 ---
 
 ## FAZA 2
 
-In faza 2 nu am folosit AI pentru cod, tot ce am adaugat (`monitor_reports.c`, `notificare.c`, `sterge_district.c`) l-am scris eu dupa ce am citit manualele pentru `sigaction`, `fork`, `execvp` si `kill`.
+### Am scris codul singur
+Am scris `monitor_reports.c`, `notificare.c` si functia `remove_district` singur, dupa ce am citit manualele pentru:
+- `sigaction`
+- `fork`
+- `execvp`
+- `kill`
+- `waitpid`
 
-Am folosit AI doar sa intreb "ce face `WIFEXITED`?" si "de ce trebuie `volatile` la variabila din signal handler?" - adica intrebari punctuale sa inteleg niste concepte, nu sa-mi genereze cod.
+### Ce am intrebat pe AI (doar explicatii)
+- "ce face `WIFEXITED`?" - mi-a explicat ca verifica daca un proces s-a terminat normal
+- "de ce trebuie `volatile` la variabila din signal handler?" - mi-a explicat ca optimizerul nu vede ca variabila se schimba in handler
+
+NU am luat cod gata facut de la AI pentru faza asta.
 
 ---
 
-## Ce cred despre AI la programare
+## FAZA 3
 
-E util sa gasesti greseli si sa intelegi rapid un concept nou.
+### Am scris codul singur
+Am scris `city_hub.c` si `scorer.c` singur, dupa ce am citit:
+- `man pipe`
+- `man dup2`
+- `man execlp`
+
+### Ce am intrebat pe AI (ajutor la intelegere)
+- "cum functioneaza pipe intre parinte si copil?" - mi-a desenat un exemplu pe hartie
+- "ce face dup2 mai exact?" - mi-a explicat ca duplica un file descriptor
+- "cum aflu daca un fisier exista in C?" - mi-a spus de `access()`
+
+Am scris tot codul manual, dar am intrebat AI sa imi explice concepte pe care nu le-am inteles bine din manual.
+
+### O problema rezolvata cu ajutor
+Am avut o eroare la `city_hub` - nu vedea mesajele de la monitor. L-am intrebat pe AI "de ce nu vad mesajele imediat?" si mi-a zis de `fflush(stdout)`. Am adaugat si a mers.
+
+---
+
+## Concluzie
+| Faza 1 | 2 functii mici (cum cere cerinta) | Restul de ~1000 linii |
+| Faza 2 | Doar intrebari teoretice | Tot codul nou |
+| Faza 3 | Doar intrebari teoretice | Tot codul nou |
+
+**Parerea mea:** AI e bun sa iti explice concepte si sa iti arate exemple mici. Dar daca lasi AI-ul sa iti scrie tot codul, nu inveti nimic si la prezentare pici. Cel mai mult am invatat cand am scris eu si am gresit, apoi am corectat.

@@ -1,4 +1,4 @@
-#include <signal.h>
+#include "structura.c"
 
 #define PID_FILE ".monitor_pid"
 // trimit SIGUSR1 la monitor cand se adauga un raport
